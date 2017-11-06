@@ -47,5 +47,12 @@
   },
   "config": {
     "sort-packages": true
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Armandsar\\MailMango\\MailMangoServiceProvider"
+      ]
+    }
   }
 }
