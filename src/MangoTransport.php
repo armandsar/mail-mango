@@ -4,7 +4,7 @@ namespace Armandsar\MailMango;
 
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Mail\Transport\Transport;
-use Swift_Mime_Message;
+use Swift_Mime_SimpleMessage;
 
 class MangoTransport extends Transport
 {
@@ -19,14 +19,14 @@ class MangoTransport extends Transport
         $this->storagePath = Constants::$storagePath;
     }
 
-    public function send(Swift_Mime_Message $message, &$failedRecipients = null)
+    public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
     {
         $this->beforeSendPerformed($message);
 
         $this->save($message);
     }
 
-    private function save(Swift_Mime_Message $message)
+    private function save(Swift_Mime_SimpleMessage $message)
     {
 
 
@@ -38,7 +38,7 @@ class MangoTransport extends Transport
         $this->openBrowser($filename);
     }
 
-    private function prepareData(Swift_Mime_Message $message)
+    private function prepareData(Swift_Mime_SimpleMessage $message)
     {
         $data = [
             'from' => $message->getFrom(),
@@ -78,7 +78,7 @@ class MangoTransport extends Transport
         }
     }
 
-    private function storeMessage(Swift_Mime_Message $message)
+    private function storeMessage(Swift_Mime_SimpleMessage $message)
     {
         $timestamp = time();
         $random = bin2hex(random_bytes(5));
