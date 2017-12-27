@@ -49,7 +49,7 @@ class TestCase extends OrchestraTestCase
             $config
         );
 
-        $message = Swift_Message::newInstance()
+        $message = (new Swift_Message)
             ->setSubject('Subject')
             ->setFrom(['john@doe.com' => 'John Doe'])
             ->setTo(['jane@doe.com' => 'Jane Doe'])
