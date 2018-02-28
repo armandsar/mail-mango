@@ -63,7 +63,7 @@ class MangoTransport extends Transport
             ];
         }
 
-        dd($children[2]);
+        dd($children);
 
         $data['parts'] = $children;
 

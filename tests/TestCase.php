@@ -74,6 +74,8 @@ class TestCase extends OrchestraTestCase
             ->addPart('Message', 'text/plain')
             ->attach(\Swift_Attachment::fromPath(__DIR__ . '/fixtures/attachment.txt'));
 
+        $message->embed(\Swift_EmbeddedFile::fromPath(__DIR__ . '/fixtures/embed.png'));
+
         $transport->send($message);
     }
 
