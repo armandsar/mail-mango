@@ -19,18 +19,18 @@ return [
 
     /**
      *
-     * Whether to disable email opening after it is sent.
-     * All emails are still visible at site/mail-mango
+     * Whether email view is opened after sending email
+     * All emails are still visible at http://awesome-site.dev/mail-mango
      */
 
-    'disable_automatic_opening' => false,
+    'automatic_opening' => true,
 
     /**
      *
-     * Whether to disable email opening after it is sent from background process.
+     * Whether email view is opened after sending email from background process.
      * This uses Laravel's  App::runningInConsole()
-     * All emails are still visible at site/mail-mango
+     * All emails are still visible at http://awesome-site.dev/mail-mango
      */
 
-    'disable_automatic_opening_from_background' => false
+    'automatic_opening_from_background' => true
 ];

@@ -10,8 +10,8 @@ class MailControllerTest extends TestCase
         parent::setUp();
         $this->withoutExceptionHandling();
         $this->sendEmail([
-            'disable_automatic_opening' => true,
-            'disable_automatic_opening_from_background' => true,
+            'automatic_opening' => false,
+            'automatic_opening_from_background' => false,
         ]);
     }
 

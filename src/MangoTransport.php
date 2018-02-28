@@ -159,11 +159,11 @@ class MangoTransport extends Transport
 
     private function openingDisabled()
     {
-        return $this->config['disable_automatic_opening'];
+        return !$this->config['automatic_opening'];
     }
 
     private function openingDisabledWhenRunningInConsole()
     {
-        return $this->config['disable_automatic_opening_from_background'];
+        return !$this->config['automatic_opening_from_background'];
     }
 }

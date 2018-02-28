@@ -22,7 +22,6 @@ class MangoTransportTest extends TestCase
     {
         $this->sendEmail();
         $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx/mail.json'));
-        // assert content json
     }
 
     public function testEmlFileIsSaved()
@@ -73,7 +72,7 @@ class MangoTransportTest extends TestCase
         $mockedHelpers->shouldNotReceive('exec');
         $this->mockedHelpers = $mockedHelpers;
 
-        $this->sendEmail(['disable_automatic_opening' => true]);
+        $this->sendEmail(['automatic_opening' => false]);
     }
 
     public function testNoCommandIsCalledWhenOpeningDisabledForRunningInConsole()
@@ -84,7 +83,7 @@ class MangoTransportTest extends TestCase
         $mockedHelpers->shouldReceive('os')->andReturn('Linux');
         $mockedHelpers->shouldNotReceive('exec');
         $this->mockedHelpers = $mockedHelpers;
-        $this->sendEmail(['disable_automatic_opening_from_background' => true]);
+        $this->sendEmail(['automatic_opening_from_background' => false]);
     }
 
     public function testNoCommandIsCalledWhenRunningOnUnknownOS()
