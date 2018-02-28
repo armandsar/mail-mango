@@ -8,7 +8,11 @@ class MailControllerTest extends TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->sendEmail();
+        $this->withoutExceptionHandling();
+        $this->sendEmail([
+            'disable_automatic_opening' => true,
+            'disable_automatic_opening_from_background' => true,
+        ]);
     }
 
     public function testIndexRespondsWithSuccess()
@@ -31,7 +35,7 @@ class MailControllerTest extends TestCase
             'mails' => [
                 [
                     'date' => '1970-01-02 01:00:00',
-                    'file' => "90000-xxx",
+                    'code' => "90000-xxx",
                     'subject' => 'Subject'
                 ]
             ]
@@ -46,17 +50,23 @@ class MailControllerTest extends TestCase
 
     public function testDestroyDeletesSingleMail()
     {
-        $this->filesystem->put(Constants::$storagePath . '/1548-file.json', "");
-        $this->filesystem->put(Constants::$storagePath . '/1548-file.eml', "");
-        $this->filesystem->put(Constants::$storagePath . '/1549-file.json', "");
-        $this->filesystem->put(Constants::$storagePath . '/1549-file.eml', "");
+        $this->filesystem->put(Constants::$storagePath . '/1548-file/mail.json', "");
+        $this->filesystem->put(Constants::$storagePath . '/1548-file/mail.eml', "");
+        $this->filesystem->put(Constants::$storagePath . '/1549-file/mail.json', "");
+        $this->filesystem->put(Constants::$storagePath . '/1549-file/mail.eml', "");
+
+        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/1548-file/mail.json'));
+        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/1548-file/mail.eml'));
+        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/1549-file/mail.json'));
+        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/1549-file/mail.eml'));
 
         $this->delete(route('mail-mango.destroy', '1548-file'), ['X-Requested-With' => 'XMLHttpRequest']);
 
-        $this->assertFalse($this->filesystem->has(Constants::$storagePath . '/1548-file.json'));
-        $this->assertFalse($this->filesystem->has(Constants::$storagePath . '/1548-file.eml'));
-        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/1549-file.json'));
-        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/1549-file.eml'));
+        $this->assertFalse($this->filesystem->has(Constants::$storagePath . '/1548-file/mail.json'));
+        $this->assertFalse($this->filesystem->has(Constants::$storagePath . '/1548-file/mail.eml'));
+        $this->assertFalse($this->filesystem->has(Constants::$storagePath . '/1548-file/'));
+        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/1549-file/mail.json'));
+        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/1549-file/mail.eml'));
     }
 
     public function testDestroyDeletesAllMails()
@@ -76,7 +86,7 @@ class MailControllerTest extends TestCase
 
     public function testDownloadReturnsCorrectData()
     {
-        $this->filesystem->put(Constants::$storagePath . '/1548-file.eml', "eml content");
+        $this->filesystem->put(Constants::$storagePath . '/1548-file/mail.eml', "eml content");
 
         $response = $this->get(route('mail-mango.download', '1548-file'));
 

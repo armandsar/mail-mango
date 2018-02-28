@@ -15,7 +15,8 @@ class MailMangoProvider extends MailServiceProvider
             return new Swift_Mailer(
                 new MangoTransport(
                     $app->make(Filesystem::class),
-                    $app['config']['mail_mango']
+                    $app['config']['mail_mango'],
+                    $app->make(Helpers::class)
                 )
             );
         });

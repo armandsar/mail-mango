@@ -11,12 +11,14 @@ class MangoTransport extends Transport
     private $storagePath;
     private $files;
     private $config;
+    private $helpers;
 
-    public function __construct(Filesystem $files, $config)
+    public function __construct(Filesystem $files, $config, Helpers $helpers)
     {
         $this->files = $files;
         $this->config = $config;
         $this->storagePath = Constants::$storagePath;
+        $this->helpers = $helpers;
     }
 
     public function send(Swift_Mime_SimpleMessage $message, &$failedRecipients = null)
@@ -28,8 +30,6 @@ class MangoTransport extends Transport
 
     private function save(Swift_Mime_SimpleMessage $message)
     {
-
-
         $this->initializeStorageDirectory();
 
         $this->cleanStorageDirectory();
@@ -80,20 +80,23 @@ class MangoTransport extends Transport
 
     private function storeMessage(Swift_Mime_SimpleMessage $message)
     {
-        $timestamp = time();
-        $random = bin2hex(random_bytes(5));
-        $filename = $timestamp . '-' . $random;
+        $timestamp = $this->helpers->time();
+        $random = $this->helpers->bin2hex(random_bytes(5));
+        $mailCode = $timestamp . '-' . $random;
+        $folder = $this->storagePath . DIRECTORY_SEPARATOR . $mailCode;
 
-        $jsonFilePath = $this->storagePath . DIRECTORY_SEPARATOR . $filename . '.json';
-        $emlFilePath = $this->storagePath . DIRECTORY_SEPARATOR . $filename . '.eml';
+        $this->files->makeDirectory($folder);
+
+        $jsonFilePath = $folder . DIRECTORY_SEPARATOR . 'mail.json';
+        $emlFilePath = $folder . DIRECTORY_SEPARATOR . 'mail.eml';
 
         $this->files->put($jsonFilePath, $this->prepareData($message));
         $this->files->put($emlFilePath, $message->toString());
 
-        return $filename;
+        return $mailCode;
     }
 
-    private function openBrowser($filename)
+    private function openBrowser($code)
     {
         if ($this->openingDisabled()) {
             return false;
@@ -103,20 +106,20 @@ class MangoTransport extends Transport
             return false;
         }
 
-        $url = route('mail-mango.index', ['file' => $filename]);
+        $url = route('mail-mango.index', ['code' => $code]);
 
-        $os = php_uname('s');
+        $os = $this->helpers->os();
 
         if ($customCommand = $this->customCommand()) {
-            return exec(str_replace("URL", $url, $customCommand));
+            return $this->helpers->exec(str_replace("URL", $url, $customCommand));
         }
 
         if ($os == 'Linux') {
-            return exec("xdg-open \"$url\" > /dev/null 2>&1 &");
+            return $this->helpers->exec("xdg-open \"$url\" > /dev/null 2>&1 &");
         }
 
         if ($os == 'Darwin') {
-            return exec("open \"$url\" > /dev/null 2>&1 &");
+            return $this->helpers->exec("open \"$url\" > /dev/null 2>&1 &");
         }
 
         return false;
@@ -124,10 +127,10 @@ class MangoTransport extends Transport
 
     private function cleanStorageDirectory()
     {
-        $time = time();
+        $time = $this->helpers->time();
         $emailLifetime = $this->emailLifetime();
 
-        $filesToDelete = collect($this->files->files($this->storagePath))
+        collect($this->files->directories($this->storagePath))
             ->filter(function ($file) use (
                 $time,
                 $emailLifetime
@@ -139,9 +142,9 @@ class MangoTransport extends Transport
                 $creationTime = (int)explode('-', basename($file))[0];
 
                 return $time - $creationTime > $emailLifetime;
-            })->toArray();
-
-        $this->files->delete($filesToDelete);
+            })->each(function ($dir) {
+                $this->files->deleteDirectory($dir);
+            });
     }
 
     private function customCommand()

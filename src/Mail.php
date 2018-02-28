@@ -6,16 +6,21 @@ use Illuminate\Contracts\Filesystem\Filesystem;
 
 class Mail
 {
+    /**
+     * @var Filesystem
+     */
+    private $files;
     private $jsonFilePath;
     private $emlFilePath;
-    private $files;
-    private $filename;
+    private $code;
+    private $folder;
 
-    public function __construct($filename)
+    public function __construct($code)
     {
-        $this->filename = $filename;
-        $this->jsonFilePath = Constants::$storagePath . DIRECTORY_SEPARATOR . $filename . '.json';
-        $this->emlFilePath = Constants::$storagePath . DIRECTORY_SEPARATOR . $filename . '.eml';
+        $this->code = $code;
+        $this->folder = Constants::$storagePath . DIRECTORY_SEPARATOR . $code;
+        $this->jsonFilePath = $this->folder . DIRECTORY_SEPARATOR . 'mail.json';
+        $this->emlFilePath = $this->folder . DIRECTORY_SEPARATOR . 'mail.eml';
         $this->files = app(Filesystem::class);
     }
 
@@ -26,10 +31,7 @@ class Mail
 
     public function delete()
     {
-        return $this->files->delete([
-            $this->jsonFilePath,
-            $this->emlFilePath,
-        ]);
+        return $this->files->deleteDirectory($this->folder);
     }
 
     public function subject()
@@ -39,7 +41,7 @@ class Mail
 
     public function date()
     {
-        $timestamp = explode('-', $this->filename)[0];
+        $timestamp = array_first(explode('-', $this->code));
 
         return date('Y-m-d H:i:s', $timestamp);
     }
@@ -52,7 +54,7 @@ class Mail
     public function toArray()
     {
         return [
-            'file' => $this->filename,
+            'code' => $this->code,
             'date' => $this->date(),
             'subject' => $this->subject()
         ];

@@ -2,36 +2,12 @@
 
 namespace Armandsar\MailMango;
 
-function time()
-{
-    return 90000;
-}
-
-function bin2hex()
-{
-    return 'xxx';
-}
-
-function exec($command)
-{
-    MangoTransportTest::$execCalled = $command;
-}
-
-function php_uname()
-{
-    return MangoTransportTest::$osToReport;
-}
 
 class MangoTransportTest extends TestCase
 {
-    public static $execCalled = null;
-    public static $osToReport = 'Linux';
 
     public function setUp()
     {
-        self::$execCalled = null;
-        self::$osToReport = 'Linux';
-
         parent::setUp();
     }
 
@@ -45,75 +21,82 @@ class MangoTransportTest extends TestCase
     public function testJsonFileIsSaved()
     {
         $this->sendEmail();
-
-        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx.json'));
+        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx/mail.json'));
+        // assert content json
     }
 
     public function testEmlFileIsSaved()
     {
         $this->sendEmail();
 
-        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx.eml'));
+        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx/mail.eml'));
     }
 
     public function testOldEmailsAreDeleted()
     {
-        $this->filesystem->put(Constants::$storagePath . '/1548-file.json', "");
+        $this->filesystem->put(Constants::$storagePath . '/1548-code/mail.json', "");
+
         $this->sendEmail();
 
-        $this->assertFalse($this->filesystem->has(Constants::$storagePath . '/1548-file.json'));
+        $this->assertFalse($this->filesystem->has(Constants::$storagePath . '/1548-code/mail.json'));
+        $this->assertFalse($this->filesystem->has(Constants::$storagePath . '/1548-code/'));
     }
 
     public function testLinuxCommandIsCalled()
     {
-        self::$osToReport = 'Linux';
+        $this->mockedHelpers->shouldReceive('exec')->with('xdg-open "http://localhost/mail-mango?code=90000-xxx" > /dev/null 2>&1 &');
         $this->sendEmail();
-
-        $this->assertEquals(
-            'xdg-open "http://localhost/mail-mango?file=90000-xxx" > /dev/null 2>&1 &',
-            self::$execCalled
-        );
     }
 
     public function testDarwinCommandIsCalled()
     {
-        self::$osToReport = 'Darwin';
-        $this->sendEmail();
+        $this->mockedHelpers->shouldReceive('os')->andReturn('Darwin');
+        $this->mockedHelpers->shouldReceive('exec')->with('open "http://localhost/mail-mango?code=90000-xxx" > /dev/null 2>&1 &');
 
-        $this->assertEquals(
-            'open "http://localhost/mail-mango?file=90000-xxx" > /dev/null 2>&1 &',
-            self::$execCalled
-        );
+        $this->sendEmail();
     }
 
     public function testCustomCommandIsCalled()
     {
+        $this->mockedHelpers->shouldReceive('exec')->with('custom http://localhost/mail-mango?code=90000-xxx');
+
         $this->sendEmail(['command' => 'custom URL']);
 
-        $this->assertEquals('custom http://localhost/mail-mango?file=90000-xxx', self::$execCalled);
     }
 
     public function testNoCommandIsCalledWhenOpeningDisabled()
     {
-        $this->sendEmail(['disable_automatic_opening' => true]);
+        $mockedHelpers = \Mockery::mock(Helpers::class);
+        $mockedHelpers->shouldReceive('time')->andReturn(90000);
+        $mockedHelpers->shouldReceive('bin2hex')->andReturn('xxx');
+        $mockedHelpers->shouldReceive('os')->andReturn('Linux');
+        $mockedHelpers->shouldNotReceive('exec');
+        $this->mockedHelpers = $mockedHelpers;
 
-        $this->assertNull(self::$execCalled);
+        $this->sendEmail(['disable_automatic_opening' => true]);
     }
 
     public function testNoCommandIsCalledWhenOpeningDisabledForRunningInConsole()
     {
+        $mockedHelpers = \Mockery::mock(Helpers::class);
+        $mockedHelpers->shouldReceive('time')->andReturn(90000);
+        $mockedHelpers->shouldReceive('bin2hex')->andReturn('xxx');
+        $mockedHelpers->shouldReceive('os')->andReturn('Linux');
+        $mockedHelpers->shouldNotReceive('exec');
+        $this->mockedHelpers = $mockedHelpers;
         $this->sendEmail(['disable_automatic_opening_from_background' => true]);
-
-        $this->assertNull(self::$execCalled);
     }
 
     public function testNoCommandIsCalledWhenRunningOnUnknownOS()
     {
-        self::$osToReport = 'Unknown';
+        $mockedHelpers = \Mockery::mock(Helpers::class);
+        $mockedHelpers->shouldReceive('time')->andReturn(90000);
+        $mockedHelpers->shouldReceive('bin2hex')->andReturn('xxx');
+        $mockedHelpers->shouldReceive('os')->andReturn('Unknown');
+        $mockedHelpers->shouldNotReceive('exec');
+        $this->mockedHelpers = $mockedHelpers;
 
         $this->sendEmail();
-
-        $this->assertNull(self::$execCalled);
     }
 
 }

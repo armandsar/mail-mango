@@ -3,6 +3,7 @@
 namespace Armandsar\MailMango;
 
 use Illuminate\Contracts\Filesystem\Filesystem;
+use Mockery\MockInterface;
 use Swift_Message;
 use VirtualFileSystem\FileSystem as Vfs;
 use League\Flysystem\Vfs\VfsAdapter;
@@ -11,7 +12,14 @@ use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 class TestCase extends OrchestraTestCase
 {
+    /**
+     * @var FilesystemImpl
+     */
     protected $filesystem;
+    /**
+     * @var MockInterface
+     */
+    protected $mockedHelpers;
 
     public function setUp()
     {
@@ -20,6 +28,14 @@ class TestCase extends OrchestraTestCase
         $this->filesystem = new FilesystemImpl($adapter);
 
         parent::setUp();
+
+        $mockedHelpers = \Mockery::mock(Helpers::class);
+        $mockedHelpers->shouldReceive('time')->andReturn(90000);
+        $mockedHelpers->shouldReceive('bin2hex')->andReturn('xxx');
+        $mockedHelpers->shouldReceive('os')->andReturn('Linux');
+        $mockedHelpers->shouldReceive('exec');
+
+        $this->mockedHelpers = $mockedHelpers;
     }
 
     protected function getEnvironmentSetUp($app)
@@ -46,7 +62,8 @@ class TestCase extends OrchestraTestCase
 
         $transport = new MangoTransport(
             $this->app->make(Filesystem::class),
-            $config
+            $config,
+            $this->mockedHelpers
         );
 
         $message = (new Swift_Message)
@@ -54,7 +71,7 @@ class TestCase extends OrchestraTestCase
             ->setFrom(['john@doe.com' => 'John Doe'])
             ->setTo(['jane@doe.com' => 'Jane Doe'])
             ->setBody('<div>Message</div>', 'text/html')
-            ->addPart('Text', 'text/plain');
+            ->addPart('Message', 'text/plain');
 
         $transport->send($message);
     }

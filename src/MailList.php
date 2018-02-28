@@ -17,16 +17,11 @@ class MailList
 
     public function call()
     {
-        return collect($this->files->files($this->storagePath))
+        return collect($this->files->directories($this->storagePath))
             ->reverse()
             ->values()
-            ->map(function ($f) {
-                $filename = pathinfo($f, PATHINFO_FILENAME);
-                $extension = pathinfo($f, PATHINFO_EXTENSION);
-                if ($extension !== 'json') {
-                    return null;
-                }
-                return (new Mail($filename))->toArray();
+            ->map(function ($folder) {
+                return (new Mail(basename($folder)))->toArray();
             })
             ->filter();
     }
