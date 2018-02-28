@@ -71,7 +71,8 @@ class TestCase extends OrchestraTestCase
             ->setFrom(['john@doe.com' => 'John Doe'])
             ->setTo(['jane@doe.com' => 'Jane Doe'])
             ->setBody('<div>Message</div>', 'text/html')
-            ->addPart('Message', 'text/plain');
+            ->addPart('Message', 'text/plain')
+            ->attach(\Swift_Attachment::fromPath(__DIR__ . '/fixtures/attachment.txt'));
 
         $transport->send($message);
     }

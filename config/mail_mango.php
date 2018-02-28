@@ -2,10 +2,11 @@
 
 return [
     /**
-     * Custom console command for opening browser. MUST include URL placeholder.
+     * Custom console command for opening browser.
+     * MUST include $URL placeholder.
      * Defaults to "xdg open" on Linux and "open" on Mac
      * If you are on Windows you will NEED to configure this
-     * Example: "google-chrome URL --incognito > /dev/null 2>&1 &"
+     * Example: 'google-chrome $URL --incognito > /dev/null 2>&1 &'
      */
     'command' => null,
 

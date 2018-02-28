@@ -5,6 +5,7 @@ namespace Armandsar\MailMango;
 use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Mail\Transport\Transport;
 use Swift_Mime_SimpleMessage;
+use Swift_MimePart;
 
 class MangoTransport extends Transport
 {
@@ -53,13 +54,16 @@ class MangoTransport extends Transport
             'type' => $message->getContentType(),
             'content' => $message->getBody()
         ];
-
+        /* @var $child Swift_MimePart */
         foreach ($message->getChildren() as $child) {
             $children[] = [
+                "or" => $child->getHeaders()->get('content-disposition') ? $child->getHeaders()->get('content-disposition')->getFieldBody('params') : null,
                 'type' => $child->getContentType(),
                 'content' => $child->getBody()
             ];
         }
+
+        dd($children[2]);
 
         $data['parts'] = $children;
 
@@ -87,11 +91,8 @@ class MangoTransport extends Transport
 
         $this->files->makeDirectory($folder);
 
-        $jsonFilePath = $folder . DIRECTORY_SEPARATOR . 'mail.json';
-        $emlFilePath = $folder . DIRECTORY_SEPARATOR . 'mail.eml';
-
-        $this->files->put($jsonFilePath, $this->prepareData($message));
-        $this->files->put($emlFilePath, $message->toString());
+        $this->files->put($folder . DIRECTORY_SEPARATOR . 'mail.json', $this->prepareData($message));
+        $this->files->put($folder . DIRECTORY_SEPARATOR . 'mail.eml', $message->toString());
 
         return $mailCode;
     }
@@ -111,7 +112,7 @@ class MangoTransport extends Transport
         $os = $this->helpers->os();
 
         if ($customCommand = $this->customCommand()) {
-            return $this->helpers->exec(str_replace("URL", $url, $customCommand));
+            return $this->helpers->exec(str_replace('$URL', $url, $customCommand));
         }
 
         if ($os == 'Linux') {

@@ -59,7 +59,7 @@ class MangoTransportTest extends TestCase
     {
         $this->mockedHelpers->shouldReceive('exec')->with('custom http://localhost/mail-mango?code=90000-xxx');
 
-        $this->sendEmail(['command' => 'custom URL']);
+        $this->sendEmail(['command' => 'custom $URL']);
 
     }
 
