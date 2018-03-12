@@ -57,13 +57,13 @@ class MangoTransport extends Transport
         /* @var $child Swift_MimePart */
         foreach ($message->getChildren() as $child) {
             $children[] = [
-                "or" => $child->getHeaders()->get('content-disposition') ? $child->getHeaders()->get('content-disposition')->getFieldBody('params') : null,
+                "disposition" => $child->getHeaders()->get('content-disposition') ? $child->getHeaders()->get('content-disposition')->getFieldBody('params') : null,
                 'type' => $child->getContentType(),
                 'content' => $child->getBody()
             ];
         }
 
-        dd($children);
+//        dd($children);
 
         $data['parts'] = $children;
 
