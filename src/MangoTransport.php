@@ -67,7 +67,7 @@ class MangoTransport extends Transport
 
         $data['parts'] = $children;
 
-        return json_encode($data);
+        return $data;
     }
 
     private function initializeStorageDirectory()
@@ -91,7 +91,23 @@ class MangoTransport extends Transport
 
         $this->files->makeDirectory($folder);
 
-        $this->files->put($folder . DIRECTORY_SEPARATOR . 'mail.json', $this->prepareData($message));
+        $data = $this->prepareData($message);
+
+        $attachmentIndex = 0;
+
+        foreach ($data['parts'] as $part) {
+            $filename = array_last(explode('filename=', $part['disposition'] ?? null));
+
+            if ($filename) {
+                $attachmentIndex += 1;
+                $filename = $attachmentIndex . "__" . $filename;
+                $this->files->put(
+                    $folder . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . $filename,
+                    $part['content']);
+            }
+        }
+
+        $this->files->put($folder . DIRECTORY_SEPARATOR . 'mail.json', json_encode($data));
         $this->files->put($folder . DIRECTORY_SEPARATOR . 'mail.eml', $message->toString());
 
         return $mailCode;

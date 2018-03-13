@@ -18,17 +18,14 @@ class MangoTransportTest extends TestCase
         $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/.gitignore'));
     }
 
-    public function testJsonFileIsSaved()
+    public function testFilesAreSaved()
     {
         $this->sendEmail();
         $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx/mail.json'));
-    }
-
-    public function testEmlFileIsSaved()
-    {
-        $this->sendEmail();
-
         $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx/mail.eml'));
+        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx/attachments/1__attachment.txt'));
+        $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx/attachments/2__embed.png'));
+        // todo assert content
     }
 
     public function testOldEmailsAreDeleted()
