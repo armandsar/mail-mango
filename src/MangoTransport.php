@@ -95,7 +95,7 @@ class MangoTransport extends Transport
 
         $attachmentIndex = 0;
 
-        foreach ($data['parts'] as $part) {
+        foreach ($data['parts'] as $index => $part) {
             $filename = array_last(explode('filename=', $part['disposition'] ?? null));
 
             if ($filename) {
@@ -104,9 +104,9 @@ class MangoTransport extends Transport
                 $this->files->put(
                     $folder . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . $filename,
                     $part['content']);
+                unset($data['parts'][$index]['content']);
             }
         }
-
         $this->files->put($folder . DIRECTORY_SEPARATOR . 'mail.json', json_encode($data));
         $this->files->put($folder . DIRECTORY_SEPARATOR . 'mail.eml', $message->toString());
 
