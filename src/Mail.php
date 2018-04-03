@@ -46,6 +46,15 @@ class Mail
         return date('Y-m-d H:i:s', $timestamp);
     }
 
+    // TODO store timestamp
+
+    public function niceDate()
+    {
+        $timestamp = array_first(explode('-', $this->code));
+
+        return date('M y, H:i', $timestamp);
+    }
+
     public function json()
     {
         return json_decode($this->files->get($this->jsonFilePath), true);
@@ -56,6 +65,7 @@ class Mail
         return [
             'code' => $this->code,
             'date' => $this->date(),
+            'nice_date' => $this->niceDate(),
             'subject' => $this->subject()
         ];
     }

@@ -29,15 +29,15 @@
         el: '#app',
         data: {
             mail: null,
-            currentFile: null,
+            current: null,
             mails: [],
-            textVersionShown: false
+            tab: 'html'
         },
         computed: {
-            'iframe_content': function () {
+            'iframeContent': function () {
                 return "data:text/html;charset=utf-8," + rawurlencode(this.mail.parts[0].content);
             },
-            'text_content': function () {
+            'textContent': function () {
                 if (!this.mail.parts[1]) {
                     return null;
                 }
@@ -45,18 +45,32 @@
             }
         },
         methods: {
-            load: function (file) {
-                this.currentFile = file;
-                this.$http.get(file).then(function (response) {
+            load: function (mail) {
+                this.current = mail.code;
+                this.$http.get(mail.code).then(function (response) {
                     this.mail = response.data;
-                    this.textVersionShown = false;
+                    this.tab = this.firstTab()
                 });
             },
-            isActive: function (mail) {
-                return this.currentFile === mail.file;
+            firstTab: function () {
+                return 'html'
             },
-            emlPath: function () {
-                return "/mail-mango/download/" + this.currentFile;
+            personList: function (list) {
+                var str = [];
+                for (var email in list) {
+                    if (list.hasOwnProperty(email)) {
+                        var name = list[email];
+                        if (name) {
+                            str.push(name + "(" + email + ")")
+                        } else {
+                            str.push(email)
+                        }
+                    }
+                }
+                return str.join(', ')
+            },
+            isActive: function (mail) {
+                return this.current === mail.code;
             },
             deleteAll: function () {
                 this.$http.delete('all').then(function (response) {
@@ -64,10 +78,9 @@
                 });
             },
             deleteCurrent: function () {
-                this.$http.delete(this.currentFile).then(function (response) {
-                    this.currentFile = null;
+                this.$http.delete(this.current).then(function (response) {
+                    this.current = null;
                     this.mail = null;
-                    this.textVersionShown = false;
                     this.reloadList();
                 });
             },

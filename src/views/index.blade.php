@@ -2,19 +2,20 @@
 
 @section('content')
     <div v-cloak id="app" xmlns:v-bind="http://www.w3.org/1999/xhtml">
-        <div class="sidebar">
+        <div v-if="mails.length > 0" class="sidebar">
             <div class="options">
-                <button @click="reloadList()" class="button button-outline">
-                <i class="fa fa-refresh"></i>
+                <button @click="reloadList()" class="ui icon button">
+                    <i class="sync icon"></i>
                 </button>
-                <button v-if="mails.length !== 0" @click="deleteAll()" class="button button-outline danger">
-                <i class="fa fa-trash"></i>
+
+                <button v-if="mails.length !== 0" @click="deleteAll()" class="ui icon secondary button">
+                    <i class="trash icon"></i>
                 </button>
             </div>
             <ul>
-                <li v-for="mail in mails" v-bind:class="{ active: isActive(mail) }" @click="load(mail.file)">
-                <span class="subject">@{{mail.subject}}</span>
-                <span class="date">@{{mail.date}}</span>
+                <li v-for="mail in mails" v-bind:class="{ active: isActive(mail) }" @click="load(mail)">
+                    <div class="subject">@{{mail.subject}}</div>
+                    <div class="date">@{{mail.nice_date}}</div>
                 </li>
             </ul>
         </div>
@@ -22,40 +23,49 @@
         <div v-cloak v-if="mail" class="content">
             <div class="mail-data">
                 <div class="heading">
-                    <h4>@{{mail.subject}}</h4>
-                    <a @click.prevent="deleteCurrent()" href="#">
-                        <i class="fa fa-trash"></i>
-                    </a>
+                    <h2 class="ui header">@{{mail.subject}}</h2>
+                    <button v-if="mails.length !== 0" @click.prevent="deleteCurrent()" class="ui secondary icon button">
+                        <i class="trash icon"></i>
+                    </button>
                 </div>
-                <p>
-                    <strong>From</strong>
-                    <span class="values">
-                        @{{ Object.keys(mail.from).join(', ') }}
+                <div class="details">
+                    <div>
+                        <strong>From:</strong>
+                        <span class="values">
+                        @{{personList(mail.from)}}
                     </span>
-                    <strong>to</strong>
-                    <span class="values">
-                        @{{ Object.keys(mail.to).join(', ') }}
+                    </div>
+                    <div>
+                        <strong>To:</strong>
+                        <span class="values">
+                        @{{personList(mail.to)}}
                     </span>
-                </p>
+                    </div>
+                </div>
             </div>
 
-            <div class="text-content-wrap" v-if="text_content">
-                <a @click.prevent="textVersionShown = !textVersionShown" href="#">Show text version</a>
-                <a target="_blank" :href="emlPath()">Download eml</a>
-
-                <pre v-if="textVersionShown">@{{ text_content }}</pre>
+            <div class="ui top attached tabular menu">
+                <div class="item" @click="tab = 'html'" v-bind:class="{ active: tab === 'html' }">Html</div>
+                <div class="item" @click="tab = 'text'" v-bind:class="{ active: tab === 'text' }">Text</div>
+            </div>
+            <div v-if="tab === 'html'" class="ui bottom attached active tab segment">
+                <iframe v-bind:src="iframeContent" frameborder="0">
+                </iframe>
+            </div>
+            <div v-if="tab === 'text'" class="ui bottom attached active tab segment">
+                <pre>@{{ textContent }}</pre>
             </div>
 
-            <iframe v-bind:src="iframe_content" frameborder="0">
 
-            </iframe>
         </div>
         <div v-else class="content">
             <div class="not-found">
                 <div v-if="mails.length === 0" class="message">
-                    No emails currently available <br>
-                    <button @click="reloadList()" class="button button-outline">
-                    <i class="fa fa-refresh"></i>
+                    No emails currently available
+                    <br>
+                    <br>
+                    <button @click="reloadList()" class="ui icon primary button">
+                        <i class="sync icon"></i>
                     </button>
                 </div>
                 <div v-else="" class="message">
