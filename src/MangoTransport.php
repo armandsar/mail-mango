@@ -51,13 +51,15 @@ class MangoTransport extends Transport
         ];
 
         $children[] = [
+            'disposition' => null,
             'type' => $message->getContentType(),
             'content' => $message->getBody()
         ];
         /* @var $child Swift_MimePart */
         foreach ($message->getChildren() as $child) {
+            $disposition = $child->getHeaders()->get('content-disposition') ? $child->getHeaders()->get('content-disposition')->getFieldBody('params') : null;
             $children[] = [
-                "disposition" => $child->getHeaders()->get('content-disposition') ? $child->getHeaders()->get('content-disposition')->getFieldBody('params') : null,
+                "disposition" => $disposition,
                 'type' => $child->getContentType(),
                 'content' => $child->getBody()
             ];
@@ -104,6 +106,7 @@ class MangoTransport extends Transport
                 $this->files->put(
                     $folder . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . $filename,
                     $part['content']);
+                $data['parts'][$index]['file'] = $filename;
                 unset($data['parts'][$index]['content']);
             }
         }

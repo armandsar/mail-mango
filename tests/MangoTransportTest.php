@@ -26,6 +26,36 @@ class MangoTransportTest extends TestCase
         $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx/attachments/1__attachment.txt'));
         $this->assertTrue($this->filesystem->has(Constants::$storagePath . '/90000-xxx/attachments/2__embed.png'));
         // todo assert content
+        $this->assertEquals([
+            'from' => ['john@doe.com' => 'John Doe'],
+            'to' => ['jane@doe.com' => 'Jane Doe'],
+            'reply-to' => null,
+            'cc' => null,
+            'bcc' => null,
+            'subject' => 'Subject',
+            'parts' => [
+                [
+                    'disposition' => null,
+                    'type' => 'multipart/mixed',
+                    'content' => '<div>Message</div>'
+                ],
+                [
+                    'disposition' => null,
+                    'type' => 'text/plain',
+                    'content' => 'Message'
+                ],
+                [
+                    'disposition' => 'attachment; filename=attachment.txt',
+                    'type' => 'text/plain',
+                    'file' => '1__attachment.txt'
+                ],
+                [
+                    'disposition' => 'inline; filename=embed.png',
+                    'type' => 'image/png',
+                    'file' => '2__embed.png'
+                ]
+            ]
+        ], json_decode($this->filesystem->read(Constants::$storagePath . '/90000-xxx/mail.json'), true));
     }
 
     public function testOldEmailsAreDeleted()
