@@ -45,8 +45,9 @@
             </div>
 
             <div class="ui top attached tabular menu">
-                <div class="item" @click="tab = 'html'" v-bind:class="{ active: tab === 'html' }">Html</div>
+                <div class="item" @click="tab = 'html'" v-bind:class="{ active: tab === 'html' }">HMTL</div>
                 <div class="item" @click="tab = 'text'" v-bind:class="{ active: tab === 'text' }">Text</div>
+                <div class="item">Eml</div>
             </div>
             <div v-if="tab === 'html'" class="ui bottom attached active tab segment">
                 <iframe v-bind:src="iframeContent" frameborder="0">

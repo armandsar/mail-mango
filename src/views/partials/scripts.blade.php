@@ -61,7 +61,7 @@
                     if (list.hasOwnProperty(email)) {
                         var name = list[email];
                         if (name) {
-                            str.push(name + "(" + email + ")")
+                            str.push(name + " (" + email + ")")
                         } else {
                             str.push(email)
                         }

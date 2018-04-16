@@ -40,6 +40,7 @@
         border-bottom: 3px solid white;
         cursor: pointer;
         color: #0d0d0d;
+        transition: background 0.1s ease, color 0.1s ease;
     }
     .sidebar ul li:hover, .sidebar ul li.active {
         background: #334286;
