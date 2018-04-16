@@ -44,7 +44,7 @@ class MangoTransport extends Transport
         $data = [
             'from' => $message->getFrom(),
             'to' => $message->getTo(),
-            'reply-to' => $message->getReplyTo(),
+            'reply_to' => $message->getReplyTo(),
             'cc' => $message->getCc(),
             'bcc' => $message->getBcc(),
             'subject' => $message->getSubject()

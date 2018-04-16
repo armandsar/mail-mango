@@ -29,17 +29,35 @@
                     </button>
                 </div>
                 <div class="details">
-                    <div>
+                    <div v-if="personList(mail.from)">
                         <strong>From:</strong>
                         <span class="values">
-                        @{{personList(mail.from)}}
-                    </span>
+                            @{{personList(mail.from)}}
+                        </span>
                     </div>
-                    <div>
+                    <div v-if="personList(mail.from)">
                         <strong>To:</strong>
                         <span class="values">
-                        @{{personList(mail.to)}}
-                    </span>
+                            @{{personList(mail.to)}}
+                        </span>
+                    </div>
+                    <div v-if="personList(mail.cc)">
+                        <strong>Cc:</strong>
+                        <span class="values">
+                            @{{personList(mail.cc)}}
+                        </span>
+                    </div>
+                    <div v-if="personList(mail.bcc)">
+                        <strong>Bcc:</strong>
+                        <span class="values">
+                            @{{personList(mail.bcc)}}
+                        </span>
+                    </div>
+                    <div v-if="personList(mail.reply_to)">
+                        <strong>Reply to:</strong>
+                        <span class="values">
+                            @{{personList(mail.reply_to)}}
+                        </span>
                     </div>
                 </div>
             </div>

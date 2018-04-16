@@ -95,10 +95,10 @@
         },
         mounted: function () {
             this.$nextTick(function () {
-                var fileToLoad = getParameterByName('file');
+                var code = getParameterByName('code');
 
-                if (fileToLoad) {
-                    this.load(fileToLoad)
+                if (code) {
+                    this.load({code: code})
                 }
 
                 this.reloadList()
