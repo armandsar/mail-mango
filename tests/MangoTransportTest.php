@@ -29,7 +29,7 @@ class MangoTransportTest extends TestCase
         $this->assertEquals([
             'from' => ['john@doe.com' => 'John Doe'],
             'to' => ['jane@doe.com' => 'Jane Doe'],
-            'reply-to' => null,
+            'reply_to' => null,
             'cc' => null,
             'bcc' => null,
             'subject' => 'Subject',
@@ -37,22 +37,26 @@ class MangoTransportTest extends TestCase
                 [
                     'disposition' => null,
                     'type' => 'multipart/mixed',
-                    'content' => '<div>Message</div>'
+                    'content' => '<div>Message</div>',
+                    'html' => true
                 ],
                 [
                     'disposition' => null,
                     'type' => 'text/plain',
-                    'content' => 'Message'
+                    'content' => 'Message',
+                    'plain' => true
                 ],
                 [
                     'disposition' => 'attachment; filename=attachment.txt',
                     'type' => 'text/plain',
-                    'file' => '1__attachment.txt'
+                    'file' => '1__attachment.txt',
+                    'plain' => false
                 ],
                 [
                     'disposition' => 'inline; filename=embed.png',
                     'type' => 'image/png',
-                    'file' => '2__embed.png'
+                    'file' => '2__embed.png',
+                    'plain' => false
                 ]
             ]
         ], json_decode($this->filesystem->read(Constants::$storagePath . '/90000-xxx/mail.json'), true));

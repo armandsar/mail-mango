@@ -35,6 +35,7 @@ class MailControllerTest extends TestCase
             'mails' => [
                 [
                     'date' => '1970-01-02 01:00:00',
+                    'nice_date' => 'Jan 70, 01:00',
                     'code' => "90000-xxx",
                     'subject' => 'Subject'
                 ]
@@ -84,11 +85,11 @@ class MailControllerTest extends TestCase
         $this->assertFalse($this->filesystem->has(Constants::$storagePath . '/1549-file.eml'));
     }
 
-    public function testDownloadReturnsCorrectData()
+    public function testEmlReturnsCorrectData()
     {
         $this->filesystem->put(Constants::$storagePath . '/1548-file/mail.eml', "eml content");
 
-        $response = $this->get(route('mail-mango.download', '1548-file'));
+        $response = $this->get(route('mail-mango.eml', '1548-file'));
 
         $response->assertSee('eml content');
         $response->assertHeader('Content-Type', 'message/rfc822');

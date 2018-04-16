@@ -34,6 +34,7 @@ class MangoTransport extends Transport
         $this->initializeStorageDirectory();
 
         $this->cleanStorageDirectory();
+
         $filename = $this->storeMessage($message);
 
         $this->openBrowser($filename);
@@ -53,19 +54,20 @@ class MangoTransport extends Transport
         $children[] = [
             'disposition' => null,
             'type' => $message->getContentType(),
-            'content' => $message->getBody()
+            'content' => $message->getBody(),
+            'html' => true
         ];
+
         /* @var $child Swift_MimePart */
         foreach ($message->getChildren() as $child) {
             $disposition = $child->getHeaders()->get('content-disposition') ? $child->getHeaders()->get('content-disposition')->getFieldBody('params') : null;
             $children[] = [
                 "disposition" => $disposition,
                 'type' => $child->getContentType(),
-                'content' => $child->getBody()
+                'content' => $child->getBody(),
+                'plain' => is_null($disposition) && $child->getContentType() === 'text/plain'
             ];
         }
-
-//        dd($children);
 
         $data['parts'] = $children;
 
