@@ -36,7 +36,7 @@ class MailController extends BaseController
         (new Mail($file))->delete();
     }
 
-    public function download($file)
+    public function eml($file)
     {
         $content = (new Mail($file))->emlContent();
 

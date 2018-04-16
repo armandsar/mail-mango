@@ -42,6 +42,9 @@
                     return null;
                 }
                 return this.mail.parts[1].content;
+            },
+            'emlUrl': function () {
+                return '/mail-mango/' + this.current + '/eml';
             }
         },
         methods: {
