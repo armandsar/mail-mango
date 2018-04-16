@@ -1,5 +1,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.1/vue.js"></script>
 <script src="https://cdn.jsdelivr.net/vue.resource/1.0.3/vue-resource.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.5/lodash.min.js"></script>
 
 <script>
 
@@ -35,13 +36,18 @@
         },
         computed: {
             'iframeContent': function () {
-                return "data:text/html;charset=utf-8," + rawurlencode(this.mail.parts[0].content);
+                var html = _.find(this.mail.parts, {html: true});
+                if (!html) {
+                    return 'not found';
+                }
+                return "data:text/html;charset=utf-8," + rawurlencode(html.content);
             },
             'textContent': function () {
-                if (!this.mail.parts[1]) {
-                    return null;
+                var text = _.find(this.mail.parts, {plain: true});
+                if (!text) {
+                    return 'not found';
                 }
-                return this.mail.parts[1].content;
+                return text.content;
             },
             'emlUrl': function () {
                 return '/mail-mango/' + this.current + '/eml';

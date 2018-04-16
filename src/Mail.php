@@ -14,6 +14,7 @@ class Mail
     private $emlFilePath;
     private $code;
     private $folder;
+    private $json;
 
     public function __construct($code)
     {
@@ -22,6 +23,7 @@ class Mail
         $this->jsonFilePath = $this->folder . DIRECTORY_SEPARATOR . 'mail.json';
         $this->emlFilePath = $this->folder . DIRECTORY_SEPARATOR . 'mail.eml';
         $this->files = app(Filesystem::class);
+        $this->json = json_decode($this->files->get($this->jsonFilePath), true);
     }
 
     public function emlContent()
@@ -41,23 +43,17 @@ class Mail
 
     public function date()
     {
-        $timestamp = array_first(explode('-', $this->code));
-
-        return date('Y-m-d H:i:s', $timestamp);
+        return date('Y-m-d H:i:s', $this->timestamp());
     }
-
-    // TODO store timestamp
 
     public function niceDate()
     {
-        $timestamp = array_first(explode('-', $this->code));
-
-        return date('M y, H:i', $timestamp);
+        return date('M y, H:i', $this->timestamp());
     }
 
     public function json()
     {
-        return json_decode($this->files->get($this->jsonFilePath), true);
+        return $this->json;
     }
 
     public function toArray()
@@ -68,5 +64,10 @@ class Mail
             'nice_date' => $this->niceDate(),
             'subject' => $this->subject()
         ];
+    }
+
+    private function timestamp()
+    {
+        return array_first(explode('-', $this->code));
     }
 }
