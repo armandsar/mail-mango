@@ -61,11 +61,13 @@ class MangoTransport extends Transport
         /* @var $child Swift_MimePart */
         foreach ($message->getChildren() as $child) {
             $disposition = $child->getHeaders()->get('content-disposition') ? $child->getHeaders()->get('content-disposition')->getFieldBody('params') : null;
+            $plain = is_null($disposition) && $child->getContentType() === 'text/plain';
             $children[] = [
                 "disposition" => $disposition,
                 'type' => $child->getContentType(),
                 'content' => $child->getBody(),
-                'plain' => is_null($disposition) && $child->getContentType() === 'text/plain'
+                'plain' => $plain,
+                'attachment' => !$plain
             ];
         }
 
@@ -100,15 +102,16 @@ class MangoTransport extends Transport
         $attachmentIndex = 0;
 
         foreach ($data['parts'] as $index => $part) {
-            $filename = array_last(explode('filename=', $part['disposition'] ?? null));
+            $filenameRaw = array_last(explode('filename=', $part['disposition'] ?? null));
 
-            if ($filename) {
+            if ($filenameRaw) {
                 $attachmentIndex += 1;
-                $filename = $attachmentIndex . "__" . $filename;
+                $filename = $attachmentIndex . "__" . $filenameRaw;
                 $this->files->put(
                     $folder . DIRECTORY_SEPARATOR . 'attachments' . DIRECTORY_SEPARATOR . $filename,
                     $part['content']);
                 $data['parts'][$index]['file'] = $filename;
+                $data['parts'][$index]['filename'] = $filenameRaw;
                 unset($data['parts'][$index]['content']);
             }
         }

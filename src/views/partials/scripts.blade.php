@@ -84,6 +84,8 @@
             deleteAll: function () {
                 this.$http.delete('all').then(function (response) {
                     this.reloadList();
+                    this.current = null;
+                    this.mail = null;
                 });
             },
             deleteCurrent: function () {
